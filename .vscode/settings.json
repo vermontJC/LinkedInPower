@@ -1,0 +1,7 @@
+{
+    "editor.formatOnSave": true,
+    "eslint.validate": ["javascript", "javascriptreact"],
+    "python.pythonPath": "python",          
+    "docker.enableDockerCompose": true
+  }
+  

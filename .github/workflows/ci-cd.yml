@@ -1,0 +1,73 @@
+name: CI/CD
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  test:
+    name: Test Backend y Frontend
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Configurar Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.13"
+
+      - name: Instalar dependencias backend
+        run: |
+          cd backend
+          python -m pip install --upgrade pip
+          pip install fastapi uvicorn[standard] pytest
+      - name: Ejecutar tests backend
+        run: |
+          cd backend
+          pytest --maxfail=1 --disable-warnings -q
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+
+      - name: Instalar dependencias frontend
+        run: |
+          cd frontend
+          npm install
+
+      - name: Ejecutar tests frontend
+        run: |
+          cd frontend
+          npm test -- --watchAll=false
+
+  deploy:
+    name: Deploy a Google Cloud Run
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Configurar gcloud
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          project_id: linkedin-450920
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Build y push imagen
+        run: |
+          gcloud builds submit --tag gcr.io/linkedin-450920/linkedInpower
+
+      - name: Deploy a Cloud Run
+        run: |
+          gcloud run deploy LinkedInPower \
+            --image gcr.io/linkedin-450920/linkedInpower \
+            --region europe-west1 \
+            --platform managed \
+            --allow-unauthenticated
