@@ -66,12 +66,14 @@ jobs:
         with:
           project_id: linkedin-450920
 
-      - name: Build y push imagen backend (async)
+      - name: Configurar Docker para GCR
         run: |
-          cd backend
-          gcloud builds submit . \
-            --tag gcr.io/linkedin-450920/linkedinpower-backend \
-            --async
+          gcloud auth configure-docker --quiet
+
+      - name: Build y push imagen backend con Docker
+        run: |
+          docker build -t gcr.io/linkedin-450920/linkedinpower-backend ./backend
+          docker push gcr.io/linkedin-450920/linkedinpower-backend
 
       - name: Deploy backend a Cloud Run
         run: |
