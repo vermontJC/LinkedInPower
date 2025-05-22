@@ -23,9 +23,7 @@ jobs:
         run: |
           cd backend
           python -m pip install --upgrade pip
-          # Instala todas las deps desde requirements.txt (incluye fastapi, uvicorn, httpx)
           pip install --no-cache-dir -r requirements.txt
-          # Y pytest para los tests
           pip install pytest
 
       - name: Ejecutar tests backend
@@ -58,11 +56,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Configurar gcloud
+      - name: Autenticar con GCP
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Instalar y configurar gcloud
         uses: google-github-actions/setup-gcloud@v1
         with:
           project_id: linkedin-450920
-          service_account_key: ${{ secrets.GCP_SA_KEY }}
 
       - name: Build y push imagen
         run: |
