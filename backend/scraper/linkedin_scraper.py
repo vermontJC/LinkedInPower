@@ -62,28 +62,32 @@ def init_driver():
 def main():
     driver = init_driver()
 
-    # 1) Navegar a LinkedIn para establecer dominio y luego inyectar cookies
+    # 1) Navegar a LinkedIn e inyectar cookies
     driver.get("https://www.linkedin.com")
     time.sleep(2)
-
     load_cookies(driver, COOKIES_PATH)
     driver.refresh()
     time.sleep(2)
-
     print("Título tras login:", driver.title)
 
-    # 2) Ejemplo: extraer seguidores
-    driver.get("https://www.linkedin.com/feed/followers/")
-    time.sleep(3)
+    # 2) Ir a la página de Conexiones
+    driver.get("https://www.linkedin.com/mynetwork/invite-connect/connections/")
+    time.sleep(2)
 
-    followers = driver.find_elements(By.CSS_SELECTOR, "li.reusable-search__result-container")
-    print(f"Encontrados {len(followers)} seguidores")
+    # Scroll para cargar más conexiones
+    for _ in range(5):
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        time.sleep(2)
 
-    if followers:
-        first = followers[0]
-        name = first.find_element(By.CSS_SELECTOR, "span.entity-result__title-text a span[aria-hidden]").text
-        photo = first.find_element(By.CSS_SELECTOR, "img.entity-result__image").get_attribute("src")
-        print("Primer seguidor:", name, photo)
+    # Extraer tarjetas de conexión
+    cards = driver.find_elements(By.CSS_SELECTOR, "li.mn-connection-card")
+    print(f"Encontradas {len(cards)} conexiones")
+
+    if cards:
+        first = cards[0]
+        name = first.find_element(By.CSS_SELECTOR, "span.mn-connection-card__name").text
+        occupation = first.find_element(By.CSS_SELECTOR, "span.mn-connection-card__occupation").text
+        print("Primera conexión:", name, occupation)
 
     # 3) Ejemplo: ir a tu perfil
     driver.get("https://www.linkedin.com/in/tu-perfil/")
@@ -95,4 +99,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
