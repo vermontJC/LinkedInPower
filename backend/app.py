@@ -11,7 +11,7 @@ app.add_middleware(
 
 @app.get("/api/hello")
 async def hello():
-    return {"message": "¡Hola Mundo desde FastAPI Back!"}
+    return {"message": "¡Hola Mundo desde FastAPI!"}
 
 if __name__ == "__main__":
     import uvicorn
