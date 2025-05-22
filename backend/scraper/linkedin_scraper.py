@@ -142,7 +142,7 @@ def scrape_and_print():
         # Análisis GPT (tema | sentimiento)
         tema, sentimiento = "Indeterminado", "Indeterminado"
         try:
-            resp = openai.ChatCompletion.create(
+            resp = openai.ChatCompletion.create( # type: ignore
                 model="gpt-4",
                 messages=[
                     {"role": "system", "content": "Extrae 'TEMA | SENTIMIENTO' del texto."},

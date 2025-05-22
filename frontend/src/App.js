@@ -1,20 +1,18 @@
-import { useEffect, useState } from 'react';
+// frontend/src/App.js
+
+import React from 'react';
+import Posts from './Posts';
 
 function App() {
-  const [msg, setMsg] = useState('Cargando…');
-  // Toma la URL de la API de la variable de entorno o el localhost en desarrollo
-  const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:8000';
-
-  useEffect(() => {
-    fetch(`${apiUrl}/api/hello`)
-      .then(res => res.json())
-      .then(data => setMsg(data.message))
-      .catch(() => setMsg('Error al conectar'));
-  }, [apiUrl]);
-
   return (
-    <div style={{ textAlign: 'center', marginTop: '2rem' }}>
-      <h1>{msg}</h1>
+    <div style={{ maxWidth: 800, margin: '0 auto', padding: '2rem' }}>
+      <header style={{ textAlign: 'center', marginBottom: '2rem' }}>
+        <h1>LinkedIn Scraper Dashboard</h1>
+      </header>
+
+      <main>
+        <Posts />
+      </main>
     </div>
   );
 }
