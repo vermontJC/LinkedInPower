@@ -69,12 +69,12 @@ jobs:
       - name: Build y push imagen backend
         run: |
           cd backend
-          gcloud builds submit . --tag gcr.io/linkedin-450920/linkedInpower-backend
+          gcloud builds submit . --tag gcr.io/linkedin-450920/linkedinpower-backend
 
       - name: Deploy backend a Cloud Run
         run: |
           gcloud run deploy linkedinpower-backend \
-            --image gcr.io/linkedin-450920/linkedInpower-backend \
+            --image gcr.io/linkedin-450920/linkedinpower-backend \
             --region europe-west1 \
             --platform managed \
             --allow-unauthenticated
