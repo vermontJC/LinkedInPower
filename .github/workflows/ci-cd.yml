@@ -23,7 +23,11 @@ jobs:
         run: |
           cd backend
           python -m pip install --upgrade pip
-          pip install fastapi uvicorn[standard] pytest
+          # Instala todas las deps desde requirements.txt (incluye fastapi, uvicorn, httpx)
+          pip install --no-cache-dir -r requirements.txt
+          # Y pytest para los tests
+          pip install pytest
+
       - name: Ejecutar tests backend
         run: |
           cd backend
