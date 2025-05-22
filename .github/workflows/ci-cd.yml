@@ -69,10 +69,9 @@ jobs:
       - name: Build y push imagen backend
         run: |
           cd backend
-          # subir código y construir imagen, sin intentar hacer stream de logs
           gcloud builds submit . \
             --tag gcr.io/linkedin-450920/linkedinpower-backend \
-            --no-stream-logs
+            --suppress-logs
 
       - name: Deploy backend a Cloud Run
         run: |
