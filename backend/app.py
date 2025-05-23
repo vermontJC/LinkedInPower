@@ -4,6 +4,9 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from google.cloud import firestore
 from google.api_core.datetime_helpers import to_rfc3339
+from google.auth.exceptions import DefaultCredentialsError
+
+
 
 app = FastAPI()
 
@@ -16,21 +19,24 @@ app.add_middleware(
 )
 
 # Cliente de Firestore
-db = firestore.Client()
+try:
+    db = firestore.Client()
+except DefaultCredentialsError:
+    db = None
 
 @app.get("/api/posts")
 async def list_posts(limit: int = 20):
-    """
-    Devuelve hasta `limit` posts, ordenados por scraped_at descendente.
-    """
+    if db is None:
+        return []  # En tests o sin credenciales, devolvemos vacío
     try:
-        col = db.collection("posts").order_by("scraped_at", direction=firestore.Query.DESCENDING).limit(limit)
+        col = (db.collection("posts")
+                 .order_by("scraped_at", direction=firestore.Query.DESCENDING)
+                 .limit(limit))
         docs = col.stream()
         results = []
         for doc in docs:
             data = doc.to_dict()
-            # Serializar timestamp a cadena ISO
-            if "scraped_at" in data and data["scraped_at"]:
+            if data.get("scraped_at"):
                 data["scraped_at"] = to_rfc3339(data["scraped_at"])
             data["id"] = doc.id
             results.append(data)
