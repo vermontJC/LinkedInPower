@@ -2,61 +2,44 @@
 
 import React, { useEffect, useState } from 'react';
 
-function Posts() {
-  const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(true);
+export default function Posts() {
+  const [posts, setPosts] = useState(null);
+  const [error, setError] = useState(null);
 
-  // Define aquí la URL de tu API; en producción pon la URL completa de Cloud Run
-  const API_URL = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000';
+  const API_URL = process.env.REACT_APP_API_URL || '';
 
   useEffect(() => {
+    // Si no hay API_URL, salimos
+    if (!API_URL) {
+      setError('No REACT_APP_API_URL definido');
+      setPosts([]);
+      return;
+    }
     fetch(`${API_URL}/api/posts`)
       .then(res => {
-        if (!res.ok) throw new Error(`Error ${res.status}`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return res.json();
       })
-      .then(data => {
-        setPosts(data);
-      })
+      .then(data => setPosts(data))
       .catch(err => {
-        console.error('Fetch error:', err);
-      })
-      .finally(() => setLoading(false));
+        console.error(err);
+        setError(err.message);
+        setPosts([]);
+      });
   }, [API_URL]);
 
-  if (loading) {
-    return <p>Cargando posts…</p>;
-  }
-
-  if (!posts.length) {
-    return <p>No se encontraron posts .</p>;
-  }
+  if (posts === null) return <p>Cargando…</p>;
+  if (error) return <p style={{ color: 'red' }}>Error: {error}</p>;
+  if (!posts.length) return <p>No hay posts disponibles.</p>;
 
   return (
     <div>
-      <h2>Últimos posts</h2>
-      {posts.map(post => (
-        <article 
-          key={post.id} 
-          style={{ 
-            borderBottom: '1px solid #ccc', 
-            padding: '1rem 0' 
-          }}
-        >
-          <header style={{ marginBottom: '.5rem' }}>
-            <strong>{post.author}</strong>{' '}
-            <em style={{ color: '#666' }}>
-              {new Date(post.scraped_at).toLocaleString()}
-            </em>
-          </header>
-          <p>{post.content}</p>
-          <footer style={{ fontSize: '.9rem', color: '#444' }}>
-            👍 {post.reactions}  |  💬 {post.comments}
-          </footer>
-        </article>
+      {posts.map(p => (
+        <div key={p.id} style={{ marginBottom: '1rem' }}>
+          <strong>{p.author}</strong> ({new Date(p.scraped_at).toLocaleString()})
+          <p>{p.content}</p>
+        </div>
       ))}
     </div>
   );
 }
-
-export default Posts;
