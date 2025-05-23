@@ -1,5 +1,3 @@
-// frontend/src/App.js
-
 import React from 'react';
 import Posts from './Posts';
 

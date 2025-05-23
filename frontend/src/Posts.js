@@ -6,15 +6,11 @@ export default function Posts() {
   const [posts, setPosts] = useState(null);
   const [error, setError] = useState(null);
 
-  const API_URL = process.env.REACT_APP_API_URL || '';
+
+ // Llamamos siempre a la ruta relativa; durante desarrollo puedes usar proxy
+ const API_URL = '';
 
   useEffect(() => {
-    // Si no hay API_URL, salimos
-    if (!API_URL) {
-      setError('No REACT_APP_API_URL definido');
-      setPosts([]);
-      return;
-    }
     fetch(`${API_URL}/api/posts`)
       .then(res => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -29,7 +25,7 @@ export default function Posts() {
   }, [API_URL]);
 
   if (posts === null) return <p>Cargando…</p>;
-  if (error) return <p style={{ color: 'red' }}>Error: {error}</p>;
+  if (error)       return <p style={{ color: 'red' }}>Error: {error}</p>;
   if (!posts.length) return <p>No hay posts disponibles.</p>;
 
   return (
