@@ -6,11 +6,9 @@ from google.cloud import firestore
 from google.api_core.datetime_helpers import to_rfc3339
 from google.auth.exceptions import DefaultCredentialsError
 
-
-
 app = FastAPI()
 
-# Permitir CORS desde tu frontend (ajusta la URL si usas dominio)
+# CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -18,20 +16,27 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Cliente de Firestore
+# Firestore client safe init
 try:
     db = firestore.Client()
 except DefaultCredentialsError:
     db = None
 
+# → Nuevo endpoint para pasar test_hello
+@app.get("/api/hello")
+async def hello():
+    return {"message": "¡Hola Mundo desde FastAPI!"}
+
 @app.get("/api/posts")
 async def list_posts(limit: int = 20):
     if db is None:
-        return []  # En tests o sin credenciales, devolvemos vacío
+        return []
     try:
-        col = (db.collection("posts")
-                 .order_by("scraped_at", direction=firestore.Query.DESCENDING)
-                 .limit(limit))
+        col = (
+            db.collection("posts")
+              .order_by("scraped_at", direction=firestore.Query.DESCENDING)
+              .limit(limit)
+        )
         docs = col.stream()
         results = []
         for doc in docs:
@@ -43,6 +48,8 @@ async def list_posts(limit: int = 20):
         return results
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+# (Opcional) raíz para comprobar despliegue
 @app.get("/")
 async def root():
-    return {"message": "¡La API está viva! Prueba /api/posts"}
+    return {"message": "API corriendo"}
